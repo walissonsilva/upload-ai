@@ -7,6 +7,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { api } from "@/lib/axios";
+import { Dispatch, SetStateAction } from "react";
 
 export type Prompt = {
   id: string;
@@ -15,7 +16,7 @@ export type Prompt = {
 };
 
 interface PromptSelectProps {
-  onPromptSelected: (prompt: Prompt) => void;
+  onPromptSelected: Dispatch<SetStateAction<string>>;
 }
 
 export function PromptSelect({ onPromptSelected }: PromptSelectProps) {
@@ -28,13 +29,13 @@ export function PromptSelect({ onPromptSelected }: PromptSelectProps) {
   });
 
   function handlePromptSelected(promptId: string) {
-    const selectedPrompt = prompts.find(
+    const selectedPrompt: Prompt = prompts.find(
       (prompt: Prompt) => prompt.id === promptId,
     );
 
     if (!selectedPrompt) return;
 
-    onPromptSelected(selectedPrompt);
+    onPromptSelected(selectedPrompt.template);
   }
 
   if (isLoading) return null;

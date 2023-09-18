@@ -13,18 +13,34 @@ import {
 } from "./components/ui/select";
 import { Slider } from "./components/ui/slider";
 import { VideoInputForm } from "./components/video-input-form";
-import { Prompt, PromptSelect } from "./components/prompt-select";
+import { PromptSelect } from "./components/prompt-select";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { useCompletion } from "ai/react";
 import { useState } from "react";
 
 const queryClient = new QueryClient();
 
 function App() {
   const [temperature, setTemperature] = useState(0.5);
+  const [videoId, setVideoId] = useState("");
 
-  function handlePromptSelected(prompt: Prompt) {
-    console.log(prompt);
-  }
+  const {
+    input,
+    setInput,
+    handleInputChange,
+    handleSubmit,
+    completion,
+    isLoading,
+  } = useCompletion({
+    api: "http://localhost:3333/ai/complete",
+    body: {
+      videoId,
+      temperature,
+    },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -37,10 +53,12 @@ function App() {
               Desenvolvido por Walisson Silva
             </span>
             <Separator orientation="vertical" className="h-6" />
-            <Button variant="outline">
-              <Github className="w-4 h4- mr-2" />
-              GitHub
-            </Button>
+            <a href="https://www.github.com/walissonsilva">
+              <Button variant="outline">
+                <Github className="w-4 h4- mr-2" />
+                GitHub
+              </Button>
+            </a>
           </div>
         </div>
 
@@ -50,11 +68,14 @@ function App() {
               <Textarea
                 placeholder="Inclua o prompt para a IA..."
                 className="resize-none p-4 leading-relaxed"
+                value={input}
+                onChange={handleInputChange}
               />
               <Textarea
                 placeholder="Resultado gerado pela IA..."
                 readOnly
                 className="resize-none p-4 leading-relaxed"
+                value={completion}
               />
             </div>
 
@@ -67,7 +88,7 @@ function App() {
           </section>
 
           <aside className="w-80 space-y-6">
-            <VideoInputForm />
+            <VideoInputForm onVideoUploaded={(id) => setVideoId(id)} />
 
             <Separator />
 
@@ -75,7 +96,7 @@ function App() {
               <div className="space-y-2">
                 <Label>Prompt</Label>
 
-                <PromptSelect onPromptSelected={handlePromptSelected} />
+                <PromptSelect onPromptSelected={setInput} />
 
                 <span className="block text-sm text-muted-foreground italic">
                   Você poderá customizar essa opção em breve.
@@ -121,7 +142,12 @@ function App() {
 
               <Separator />
 
-              <Button type="submit" className="w-full">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full"
+                onClick={handleSubmit}
+              >
                 Executar
                 <Wand2 className="w-4 h-4 ml-2" />
               </Button>
