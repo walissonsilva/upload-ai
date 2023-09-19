@@ -6,8 +6,9 @@ async function main() {
 
   await prisma.prompt.create({
     data: {
-      title: "Título YouTube",
-      template: `Seu papel é gerar três títulos para um vídeo do YouTube.
+      title: "Título do Vídeo",
+      template:
+        `Seu papel é gerar cinco títulos, em português, para um vídeo do YouTube.
 
 Abaixo você receberá uma transcrição desse vídeo, use essa transcrição para gerar os títulos.
 Abaixo você também receberá uma lista de títulos, use essa lista como referência para os títulos a serem gerados.
@@ -31,9 +32,9 @@ Transcrição:
 
   await prisma.prompt.create({
     data: {
-      title: "Descrição YouTube",
+      title: "Descrição do Vídeo",
       template:
-        `Seu papel é gerar uma descrição sucinta para um vídeo do YouTube.
+        `Seu papel é gerar uma descrição sucinta, em português, para um vídeo do YouTube.
   
 Abaixo você receberá uma transcrição desse vídeo, use essa transcrição para gerar a descrição.
 
@@ -54,6 +55,16 @@ Transcrição:
 '''
 {transcription}
 '''`.trim(),
+    },
+  });
+
+  await prisma.prompt.create({
+    data: {
+      title: "Exercícios sobre o vídeo",
+      template:
+        `Seu papel é gerar 5 questões de múltipla escolha, em português, para o vídeo cuja transcrição será informada abaixo. Use-a para criar as questões.
+
+Cada questão deve ser composta por um enunciado e cinco alternativas (a, b, c, d, e), sendo apenas uma delas correta. A resposta correta de cada uma das cinco questões só deve ser informada após as cinco questões. As questões devem estar em português e relacionadas ao conteúdo que foi abordado no conteúdo disponível nesta transcrição: '''{transcription}'''.`.trim(),
     },
   });
 }
