@@ -1,8 +1,11 @@
 import { FastifyInstance } from "fastify";
 import { prisma } from "../lib/prisma";
 import { z } from "zod";
-import { createReadStream } from "fs";
+import { createReadStream, unlink } from "fs";
 import { openai } from "../lib/openai";
+import { promisify } from "util";
+
+const unlinkPromise = promisify(unlink);
 
 export async function createTranscriptionRoute(app: FastifyInstance) {
   app.post("/videos/:videoId/transcription", async (req) => {
@@ -46,6 +49,8 @@ export async function createTranscriptionRoute(app: FastifyInstance) {
         transcription,
       },
     });
+
+    await unlinkPromise(videoPath);
 
     return response.text;
   });
