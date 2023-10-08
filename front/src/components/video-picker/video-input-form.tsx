@@ -1,8 +1,8 @@
 import { FileVideo, Upload } from "lucide-react";
-import { Textarea } from "./ui/textarea";
-import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
-import { Label } from "./ui/label";
+import { Textarea } from "../ui/textarea";
+import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
+import { Label } from "../ui/label";
 import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
 import { getFFmpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
@@ -123,7 +123,7 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
           <video
             src={previewURL}
             controls={false}
-            className="absolute pointer-events-none inset-0"
+            className="absolute pointer-events-none inset-0 w-full"
           ></video>
         ) : (
           <>
@@ -157,7 +157,7 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
       <Button
         data-success={status === "success"}
         type="submit"
-        disabled={status !== "waiting"}
+        disabled={status !== "waiting" || videoFile == null}
         className="w-full data-[success=true]:bg-emerald-400"
       >
         {status === "waiting" ? (
