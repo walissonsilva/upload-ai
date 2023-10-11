@@ -30,7 +30,7 @@ export function PromptSelect({ onPromptSelected }: PromptSelectProps) {
 
   function handlePromptSelected(promptId: string) {
     const selectedPrompt: Prompt = prompts.find(
-      (prompt: Prompt) => prompt.id === promptId,
+      (prompt: Prompt) => prompt.id === promptId
     );
 
     if (!selectedPrompt) return;
