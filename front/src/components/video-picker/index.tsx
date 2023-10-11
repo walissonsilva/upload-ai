@@ -13,7 +13,7 @@ export const VideoPicker: React.FC<VideoPickerProps> = ({
       <Tabs defaultValue="new-video">
         <TabsList className="mb-2">
           <TabsTrigger value="new-video">Novo vídeo</TabsTrigger>
-          <TabsTrigger value="load-video">Carregar vídeo</TabsTrigger>
+          <TabsTrigger value="load-video">Histórico</TabsTrigger>
         </TabsList>
         <TabsContent value="new-video">
           <VideoInputForm onVideoUploaded={onVideoUploaded} />

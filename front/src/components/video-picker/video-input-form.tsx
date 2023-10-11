@@ -7,6 +7,7 @@ import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
 import { getFFmpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { api } from "@/lib/axios";
+import { Input } from "../ui/input";
 
 type Status = "waiting" | "converting" | "uploading" | "generating" | "success";
 
@@ -114,60 +115,70 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
   }, [videoFile]);
 
   return (
-    <form onSubmit={handleUploadVideo} className="space-y-6">
-      <label
-        htmlFor="video"
-        className="relative border flex rounded-md aspect-video justify-center items-center cursor-pointer border-dashed text-sm flex-col gap-2 text-muted-foreground hover:bg-primary/10"
-      >
-        {previewURL ? (
-          <video
-            src={previewURL}
-            controls={false}
-            className="absolute pointer-events-none inset-0 w-full"
-          ></video>
-        ) : (
-          <>
-            <FileVideo className="w-4 h-4" />
-            Selecione um vídeo
-          </>
-        )}
-      </label>
-      <input
-        type="file"
-        id="video"
-        accept="video/mp4"
-        className="sr-only"
-        onChange={handleFileSelected}
-      />
-
-      <Separator />
-
-      <div className="space-y-2">
-        <Label htmlFor="transcription_prompt">Prompt de transcrição</Label>
-
-        <Textarea
-          id="transcription_prompt"
-          className="h-20 leading-relaxed resize-none"
-          placeholder="Inclua palavras-chave mencionadas no vídeo separadas por ','"
-          ref={promptInputRef}
-          disabled={status !== "waiting"}
+    <form
+      onSubmit={handleUploadVideo}
+      className="flex flex-col lg:flex-row lg:items-stretch gap-6"
+    >
+      <fieldset className="flex flex-col gap-4 flex-1">
+        <label
+          htmlFor="video"
+          className="relative border flex rounded-md aspect-video justify-center items-center cursor-pointer border-dashed text-sm flex-col gap-2 text-muted-foreground hover:bg-primary/10"
+        >
+          {previewURL ? (
+            <video
+              src={previewURL}
+              controls={false}
+              className="absolute pointer-events-none inset-0 w-full"
+            ></video>
+          ) : (
+            <>
+              <FileVideo className="w-4 h-4" />
+              Selecione um vídeo
+            </>
+          )}
+        </label>
+        <input
+          type="file"
+          id="video"
+          accept="video/mp4"
+          className="sr-only"
+          onChange={handleFileSelected}
         />
-      </div>
+      </fieldset>
 
-      <Button
-        data-success={status === "success"}
-        type="submit"
-        disabled={status !== "waiting" || videoFile == null}
-        className="w-full data-[success=true]:bg-emerald-400"
-      >
-        {status === "waiting" ? (
-          <>
-            Carregar vídeo <Upload className="w-4  h-4 ml-2" />
-          </>
-        ) : (
-          statusMessages[status]
-        )}
-      </Button>
+      <div className="flex-1 flex flex-col gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="video-title">Título do vídeo</Label>
+          <Input type="text" id="video-title" />
+        </div>
+
+        <div className="space-y-2 flex-1 flex flex-col">
+          <Label htmlFor="transcription_prompt">Prompt de transcrição</Label>
+
+          <Textarea
+            id="transcription_prompt"
+            className="flex-1 h-full leading-relaxed resize-none min-h-20"
+            placeholder="Inclua palavras-chave mencionadas no vídeo separadas por ','"
+            ref={promptInputRef}
+            disabled={status !== "waiting"}
+          />
+        </div>
+
+        <Button
+          data-success={status === "success"}
+          type="submit"
+          disabled={status !== "waiting" || videoFile == null}
+          className="w-full data-[success=true]:bg-emerald-400"
+        >
+          {status === "waiting" ? (
+            <>
+              Carregar vídeo <Upload className="w-4  h-4 ml-2" />
+            </>
+          ) : (
+            statusMessages[status]
+          )}
+        </Button>
+      </div>
     </form>
   );
 }
