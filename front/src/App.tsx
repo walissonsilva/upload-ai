@@ -12,6 +12,7 @@ import { Header } from "./components/header";
 import { Wizard } from "react-use-wizard";
 import { WizardWrapper } from "./components/wizard-wrapper";
 import { VideoPicker } from "./components/video-picker";
+import { Toaster } from "@/components/ui/toaster";
 
 const queryClient = new QueryClient();
 
@@ -95,6 +96,8 @@ function App() {
           </section>
         </Wizard>
       </div>
+
+      <Toaster />
     </QueryClientProvider>
   );
 }

@@ -10,6 +10,8 @@ import { fetchFile } from "@ffmpeg/util";
 import { api } from "@/lib/axios";
 import { Input } from "../ui/input";
 import { z } from "zod";
+import { useToast } from "../ui/use-toast";
+import { isAxiosError } from "axios";
 
 const videoUploadFormSchema = z.object({
   fileList: z.any(),
@@ -49,20 +51,9 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
     resolver: zodResolver(videoUploadFormSchema),
   });
   const [status, setStatus] = useState<Status>("waiting");
-  // const promptInputRef = useRef<HTMLTextAreaElement>(null);
+  const { toast } = useToast();
 
   const videoFile: FileList = watch("fileList");
-
-  // function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
-  //   const { files } = event.currentTarget;
-  //
-  //   if (!files) {
-  //     return;
-  //   }
-  //
-  //   const selectedFile = files[0];
-  //   setVideoFile(selectedFile);
-  // }
 
   const onSubmit: SubmitHandler<UploadVideoFormData> = async (data) => {
     const prompt = data.prompt;
@@ -72,28 +63,39 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
     setStatus("converting");
 
     // converter vídeo em áudio
-    const audioFile = await convertVideoToAudio(data.fileList[0]);
+    const audioFile = await convertVideoToAudio(data.fileList[0], data.title);
 
     const formData = new FormData();
 
     formData.append("file", audioFile);
+    formData.append("title", data.title);
 
     setStatus("uploading");
 
-    const response = await api.post("/videos", data);
-    const videoId = response.data.video.id;
+    try {
+      const response = await api.post("/videos", formData);
+      const videoId = response.data.video.id;
 
-    setStatus("generating");
+      setStatus("generating");
 
-    await api.post(`/videos/${videoId}/transcription`, {
-      prompt,
-    });
+      await api.post(`/videos/${videoId}/transcription`, {
+        prompt,
+      });
 
-    setStatus("success");
-    onVideoUploaded(videoId);
+      setStatus("success");
+      onVideoUploaded(videoId);
+    } catch (error) {
+      console.log(error);
+      if (isAxiosError(error)) {
+        toast({
+          title: "Erro no upload do vídeo",
+          description: String(error.response?.data.message),
+        });
+      }
+    }
   };
 
-  async function convertVideoToAudio(video: File) {
+  async function convertVideoToAudio(video: File, title: string) {
     console.log("Convertion started...");
 
     const ffmpeg = await getFFmpeg();
@@ -123,7 +125,7 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
     const data = await ffmpeg.readFile("output.mp3");
 
     const audioFileBlob = new Blob([data], { type: "audio/mpeg" });
-    const audioFile = new File([audioFileBlob], "audio.mp3", {
+    const audioFile = new File([audioFileBlob], `${title}.mp3`, {
       type: "audio/mpeg",
     });
 
@@ -131,37 +133,6 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
 
     return audioFile;
   }
-
-  // async function handleUploadVideo(event: FormEvent<HTMLFormElement>) {
-  //   event.preventDefault();
-  //
-  //   const prompt = promptInputRef.current?.value;
-  //
-  //   if (!videoFile) return;
-  //
-  //   setStatus("converting");
-  //
-  //   // converter vídeo em áudio
-  //   const audioFile = await convertVideoToAudio(videoFile);
-  //
-  //   const data = new FormData();
-  //
-  //   data.append("file", audioFile);
-  //
-  //   setStatus("uploading");
-  //
-  //   const response = await api.post("/videos", data);
-  //   const videoId = response.data.video.id;
-  //
-  //   setStatus("generating");
-  //
-  //   await api.post(`/videos/${videoId}/transcription`, {
-  //     prompt,
-  //   });
-  //
-  //   setStatus("success");
-  //   onVideoUploaded(videoId);
-  // }
 
   const previewURL = useMemo(() => {
     if (!videoFile || videoFile.length === 0) return null;
@@ -205,7 +176,12 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
       <div className="flex-1 flex flex-col gap-4">
         <div className="space-y-2">
           <Label htmlFor="video-title">Título do vídeo</Label>
-          <Input type="text" id="video-title" {...register("title")} />
+          <Input
+            type="text"
+            id="video-title"
+            placeholder="Título para identificar seu vídeo no histórico..."
+            {...register("title")}
+          />
           <span className="text-xs text-red-500 ml-1">
             <>{errors["title"]?.message}</>
           </span>
