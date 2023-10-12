@@ -21,32 +21,30 @@ export const WizardWrapper: React.FC<WizardWrapperProps> = ({
   };
 
   return (
-    <div>
-      <main className="max-w-7xl px-4 py-8 mx-auto xl:py-12 xl:px-8">
-        <h2 className="text-2xl font-medium mb-1">Passo {activeStep + 1}</h2>
-        <h3 className="text-sm text-muted-foreground">{`${stepTitleMapper[activeStep]}`}</h3>
+    <main className="max-w-7xl mx-auto px-4 py-8 xl:py-12 xl:px-8 w-full">
+      <h2 className="text-2xl font-medium mb-1">Passo {activeStep + 1}</h2>
+      <h3 className="text-sm text-muted-foreground">{`${stepTitleMapper[activeStep]}`}</h3>
 
-        <Separator className="my-6" />
+      <Separator className="my-6" />
 
-        {children}
+      {children}
 
-        <div className="flex items-center justify-between mt-8">
-          <div>
-            {!isFirstStep && (
-              <Button onClick={previousStep}>
-                <ArrowLeft className="mr-2 w-4" />
-                Anterior
-              </Button>
-            )}
-          </div>
-
-          {!isLastStep && (
-            <Button onClick={nextStep} disabled={!videoUploadedId}>
-              Avançar <ArrowRight className="w-4 ml-2" />
+      <div className="flex items-center justify-between mt-8">
+        <div>
+          {!isFirstStep && (
+            <Button onClick={previousStep}>
+              <ArrowLeft className="mr-2 w-4" />
+              Anterior
             </Button>
           )}
         </div>
-      </main>
-    </div>
+
+        {!isLastStep && (
+          <Button onClick={nextStep} disabled={!Boolean(videoUploadedId)}>
+            Avançar <ArrowRight className="w-4 ml-2" />
+          </Button>
+        )}
+      </div>
+    </main>
   );
 };

@@ -43,11 +43,14 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen flex flex-col">
+      <div className="flex flex-col">
         <Header />
 
         <Wizard wrapper={<WizardWrapper videoUploadedId={videoId} />}>
-          <VideoPicker onVideoUploaded={onVideoUploaded} />
+          <VideoPicker
+            videoUploadedId={videoId}
+            onVideoUploaded={onVideoUploaded}
+          />
 
           <section className="flex flex-col flex-1 gap-4">
             <form>
@@ -58,7 +61,7 @@ function App() {
               </div>
             </form>
 
-            <div className="grid grid-rows-2 gap-4 flex-1 lg:grid-cols-2">
+            <div className="grid grid-rows-2 gap-4 flex-1 lg:grid-cols-2 lg:grid-rows-none">
               <Textarea
                 placeholder="Inclua o prompt para a IA..."
                 className="resize-none p-4 leading-relaxed"

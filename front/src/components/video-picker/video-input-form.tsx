@@ -167,8 +167,7 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
           type="file"
           id="video"
           accept="video/mp4"
-          className="sr-only"
-          // onChange={handleFileSelected}
+          className="w-0 sr-only"
           {...register("fileList")}
         />
       </fieldset>
@@ -194,7 +193,6 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
             id="transcription_prompt"
             className="flex-1 h-full leading-relaxed resize-none min-h-20"
             placeholder="Inclua palavras-chave mencionadas no vídeo separadas por ','"
-            // ref={promptInputRef}
             disabled={status !== "waiting"}
             {...register("prompt")}
           />
