@@ -1,13 +1,30 @@
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { FileVideo, Upload } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
 import { Label } from "../ui/label";
-import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { getFFmpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { api } from "@/lib/axios";
 import { Input } from "../ui/input";
+import { z } from "zod";
+
+const videoUploadFormSchema = z.object({
+  fileList: z.any(),
+  title: z
+    .string()
+    .min(3, { message: "Informe o título do vídeo (pelo menos, 3 letras)" }),
+  prompt: z.string().optional(),
+});
+
+type UploadVideoFormData = Exclude<
+  z.infer<typeof videoUploadFormSchema>,
+  "file"
+> & {
+  fileList: FileList;
+};
 
 type Status = "waiting" | "converting" | "uploading" | "generating" | "success";
 
@@ -23,20 +40,58 @@ interface VideoInputFormProps {
 }
 
 export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const {
+    watch,
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<UploadVideoFormData>({
+    resolver: zodResolver(videoUploadFormSchema),
+  });
   const [status, setStatus] = useState<Status>("waiting");
-  const promptInputRef = useRef<HTMLTextAreaElement>(null);
+  // const promptInputRef = useRef<HTMLTextAreaElement>(null);
 
-  function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
-    const { files } = event.currentTarget;
+  const videoFile: FileList = watch("fileList");
 
-    if (!files) {
-      return;
-    }
+  // function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
+  //   const { files } = event.currentTarget;
+  //
+  //   if (!files) {
+  //     return;
+  //   }
+  //
+  //   const selectedFile = files[0];
+  //   setVideoFile(selectedFile);
+  // }
 
-    const selectedFile = files[0];
-    setVideoFile(selectedFile);
-  }
+  const onSubmit: SubmitHandler<UploadVideoFormData> = async (data) => {
+    const prompt = data.prompt;
+
+    if (!data.fileList) return;
+
+    setStatus("converting");
+
+    // converter vídeo em áudio
+    const audioFile = await convertVideoToAudio(data.fileList[0]);
+
+    const formData = new FormData();
+
+    formData.append("file", audioFile);
+
+    setStatus("uploading");
+
+    const response = await api.post("/videos", data);
+    const videoId = response.data.video.id;
+
+    setStatus("generating");
+
+    await api.post(`/videos/${videoId}/transcription`, {
+      prompt,
+    });
+
+    setStatus("success");
+    onVideoUploaded(videoId);
+  };
 
   async function convertVideoToAudio(video: File) {
     console.log("Convertion started...");
@@ -77,46 +132,46 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
     return audioFile;
   }
 
-  async function handleUploadVideo(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const prompt = promptInputRef.current?.value;
-
-    if (!videoFile) return;
-
-    setStatus("converting");
-
-    // converter vídeo em áudio
-    const audioFile = await convertVideoToAudio(videoFile);
-
-    const data = new FormData();
-
-    data.append("file", audioFile);
-
-    setStatus("uploading");
-
-    const response = await api.post("/videos", data);
-    const videoId = response.data.video.id;
-
-    setStatus("generating");
-
-    await api.post(`/videos/${videoId}/transcription`, {
-      prompt,
-    });
-
-    setStatus("success");
-    onVideoUploaded(videoId);
-  }
+  // async function handleUploadVideo(event: FormEvent<HTMLFormElement>) {
+  //   event.preventDefault();
+  //
+  //   const prompt = promptInputRef.current?.value;
+  //
+  //   if (!videoFile) return;
+  //
+  //   setStatus("converting");
+  //
+  //   // converter vídeo em áudio
+  //   const audioFile = await convertVideoToAudio(videoFile);
+  //
+  //   const data = new FormData();
+  //
+  //   data.append("file", audioFile);
+  //
+  //   setStatus("uploading");
+  //
+  //   const response = await api.post("/videos", data);
+  //   const videoId = response.data.video.id;
+  //
+  //   setStatus("generating");
+  //
+  //   await api.post(`/videos/${videoId}/transcription`, {
+  //     prompt,
+  //   });
+  //
+  //   setStatus("success");
+  //   onVideoUploaded(videoId);
+  // }
 
   const previewURL = useMemo(() => {
-    if (!videoFile) return null;
+    if (!videoFile || videoFile.length === 0) return null;
 
-    return URL.createObjectURL(videoFile);
+    return URL.createObjectURL(videoFile[0]);
   }, [videoFile]);
 
   return (
     <form
-      onSubmit={handleUploadVideo}
+      onSubmit={handleSubmit(onSubmit)}
       className="flex flex-col lg:flex-row lg:items-stretch gap-6"
     >
       <fieldset className="flex flex-col gap-4 flex-1">
@@ -137,19 +192,23 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
             </>
           )}
         </label>
-        <input
+        <Input
           type="file"
           id="video"
           accept="video/mp4"
           className="sr-only"
-          onChange={handleFileSelected}
+          // onChange={handleFileSelected}
+          {...register("fileList")}
         />
       </fieldset>
 
       <div className="flex-1 flex flex-col gap-4">
         <div className="space-y-2">
           <Label htmlFor="video-title">Título do vídeo</Label>
-          <Input type="text" id="video-title" />
+          <Input type="text" id="video-title" {...register("title")} />
+          <span className="text-xs text-red-500 ml-1">
+            <>{errors["title"]?.message}</>
+          </span>
         </div>
 
         <div className="space-y-2 flex-1 flex flex-col">
@@ -159,8 +218,9 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
             id="transcription_prompt"
             className="flex-1 h-full leading-relaxed resize-none min-h-20"
             placeholder="Inclua palavras-chave mencionadas no vídeo separadas por ','"
-            ref={promptInputRef}
+            // ref={promptInputRef}
             disabled={status !== "waiting"}
+            {...register("prompt")}
           />
         </div>
 

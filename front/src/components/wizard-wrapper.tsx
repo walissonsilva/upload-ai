@@ -24,7 +24,7 @@ export const WizardWrapper: React.FC<WizardWrapperProps> = ({
     <div>
       <main className="max-w-7xl px-4 py-8 mx-auto xl:py-12 xl:px-8">
         <h2 className="text-2xl font-medium mb-1">Passo {activeStep + 1}</h2>
-        <h3 className="text-xs text-muted-foreground">{`${stepTitleMapper[activeStep]}`}</h3>
+        <h3 className="text-sm text-muted-foreground">{`${stepTitleMapper[activeStep]}`}</h3>
 
         <Separator className="my-6" />
 
