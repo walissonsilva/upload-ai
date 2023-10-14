@@ -22,9 +22,10 @@ export const HistoryVideos: React.FC<HistoryVideosProps> = ({
         <li
           key={video.id}
           className={clsx(
-            "flex items-center gap-3 bg-primary/5 px-5 py-3 rounded-md transition-all",
+            "flex items-center gap-3 px-5 py-3 rounded-md transition-all",
             pickedVideoId === video.id && "bg-green-500/10",
-            pickedVideoId !== video.id && "hover:bg-primary/10 cursor-pointer",
+            pickedVideoId !== video.id &&
+              "bg-primary/5 hover:bg-primary/10 cursor-pointer",
           )}
         >
           <Input
@@ -32,7 +33,7 @@ export const HistoryVideos: React.FC<HistoryVideosProps> = ({
             id={video.id}
             name="videoId"
             value={video.id}
-            className="sr-only"
+            className="sr-only w-0"
             onChange={() => onVideoPicked(video.id)}
           />
           <Label
