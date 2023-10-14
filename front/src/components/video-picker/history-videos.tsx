@@ -6,15 +6,15 @@ import { Check } from "lucide-react";
 import clsx from "clsx";
 
 interface HistoryVideosProps {
-  videoUploadedId: string;
-  onVideoUploaded: (id: string) => void;
+  pickedVideoId: string;
+  onVideoPicked: (id: string) => void;
   uploadedVideos: Video[];
 }
 
 export const HistoryVideos: React.FC<HistoryVideosProps> = ({
   uploadedVideos,
-  videoUploadedId,
-  onVideoUploaded,
+  pickedVideoId,
+  onVideoPicked,
 }) => {
   return (
     <ul className="mt-6 flex flex-col gap-4 w-full">
@@ -23,9 +23,8 @@ export const HistoryVideos: React.FC<HistoryVideosProps> = ({
           key={video.id}
           className={clsx(
             "flex items-center gap-3 bg-primary/5 px-5 py-3 rounded-md transition-all",
-            videoUploadedId === video.id && "bg-green-500/10",
-            videoUploadedId !== video.id &&
-              "hover:bg-primary/10 cursor-pointer",
+            pickedVideoId === video.id && "bg-green-500/10",
+            pickedVideoId !== video.id && "hover:bg-primary/10 cursor-pointer",
           )}
         >
           <Input
@@ -34,13 +33,13 @@ export const HistoryVideos: React.FC<HistoryVideosProps> = ({
             name="videoId"
             value={video.id}
             className="sr-only"
-            onChange={() => onVideoUploaded(video.id)}
+            onChange={() => onVideoPicked(video.id)}
           />
           <Label
             htmlFor={video.id}
             className={clsx(
               "flex-1 flex items-center justify-between gap-4",
-              videoUploadedId !== video.id && "cursor-pointer",
+              pickedVideoId !== video.id && "cursor-pointer",
             )}
           >
             <div>
@@ -58,7 +57,7 @@ export const HistoryVideos: React.FC<HistoryVideosProps> = ({
               </span>
             </div>
 
-            {videoUploadedId === video.id && <Check className="w-6" />}
+            {pickedVideoId === video.id && <Check className="w-6" />}
           </Label>
         </li>
       ))}

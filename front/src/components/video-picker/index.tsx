@@ -3,39 +3,38 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { VideoInputForm } from "./video-input-form";
 import { api } from "@/lib/axios";
 import { HistoryVideos } from "./history-videos";
+import { useVideoPicker } from "@/hooks/useVideoPicker";
+import { TabOptions } from "@/hooks/contexts/VideoPickerContext";
 
-interface VideoPickerProps {
-  videoUploadedId: string;
-  onVideoUploaded: (videoId: string) => void;
-}
+export const VideoPicker: React.FC = () => {
+  const { pickedVideoId, onVideoPicked, onChangeTabSelected, tabSelected } =
+    useVideoPicker();
 
-export const VideoPicker: React.FC<VideoPickerProps> = ({
-  videoUploadedId,
-  onVideoUploaded,
-}) => {
   const { data } = useQuery(["getUploadedVideos"], {
     queryFn: async () => {
       const response = await api.get("/uploaded-videos");
-      console.log(response.data);
       return response.data;
     },
   });
 
   return (
     <div>
-      <Tabs defaultValue="new-video">
+      <Tabs
+        defaultValue={tabSelected}
+        onValueChange={(value) => onChangeTabSelected(value as TabOptions)}
+      >
         <TabsList className="mb-2">
           <TabsTrigger value="new-video">Novo vídeo</TabsTrigger>
           <TabsTrigger value="load-video">Histórico</TabsTrigger>
         </TabsList>
         <TabsContent value="new-video">
-          <VideoInputForm onVideoUploaded={onVideoUploaded} />
+          <VideoInputForm onVideoPicked={onVideoPicked} />
         </TabsContent>
         <TabsContent value="load-video">
           <HistoryVideos
             uploadedVideos={data}
-            videoUploadedId={videoUploadedId}
-            onVideoUploaded={onVideoUploaded}
+            pickedVideoId={pickedVideoId}
+            onVideoPicked={onVideoPicked}
           />
         </TabsContent>
       </Tabs>

@@ -3,17 +3,13 @@ import { Button } from "./ui/button";
 import { useWizard } from "react-use-wizard";
 import { Separator } from "./ui/separator";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useVideoPicker } from "@/hooks/useVideoPicker";
 
-type WizardWrapperProps = PropsWithChildren & {
-  videoUploadedId: string;
-};
-
-export const WizardWrapper: React.FC<WizardWrapperProps> = ({
-  videoUploadedId,
-  children,
-}) => {
+export const WizardWrapper: React.FC<PropsWithChildren> = ({ children }) => {
   const { isFirstStep, nextStep, previousStep, isLastStep, activeStep } =
     useWizard();
+
+  const { pickedVideoId } = useVideoPicker();
 
   const stepTitleMapper: Record<number, string> = {
     0: "Carregue um novo vídeo ou selecione algum vídeo do seu histórico",
@@ -40,7 +36,7 @@ export const WizardWrapper: React.FC<WizardWrapperProps> = ({
         </div>
 
         {!isLastStep && (
-          <Button onClick={nextStep} disabled={!Boolean(videoUploadedId)}>
+          <Button onClick={nextStep} disabled={!Boolean(pickedVideoId)}>
             Avançar <ArrowRight className="w-4 ml-2" />
           </Button>
         )}

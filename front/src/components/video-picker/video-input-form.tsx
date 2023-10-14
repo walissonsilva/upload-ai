@@ -38,10 +38,10 @@ const statusMessages = {
 };
 
 interface VideoInputFormProps {
-  onVideoUploaded: (id: string) => void;
+  onVideoPicked: (id: string) => void;
 }
 
-export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
+export function VideoInputForm({ onVideoPicked }: VideoInputFormProps) {
   const {
     watch,
     register,
@@ -83,7 +83,7 @@ export function VideoInputForm({ onVideoUploaded }: VideoInputFormProps) {
       });
 
       setStatus("success");
-      onVideoUploaded(videoId);
+      onVideoPicked(videoId);
     } catch (error) {
       console.log(error);
       if (isAxiosError(error)) {
