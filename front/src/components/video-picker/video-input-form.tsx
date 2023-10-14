@@ -4,7 +4,7 @@ import { FileVideo, Upload } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getFFmpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { api } from "@/lib/axios";
@@ -12,6 +12,7 @@ import { Input } from "../ui/input";
 import { z } from "zod";
 import { useToast } from "../ui/use-toast";
 import { isAxiosError } from "axios";
+import { useVideoPicker } from "@/hooks/useVideoPicker";
 
 const videoUploadFormSchema = z.object({
   fileList: z.any(),
@@ -37,23 +38,31 @@ const statusMessages = {
   success: "Sucesso!",
 };
 
-interface VideoInputFormProps {
-  onVideoPicked: (id: string) => void;
-}
-
-export function VideoInputForm({ onVideoPicked }: VideoInputFormProps) {
+export function VideoInputForm() {
+  const { toast } = useToast();
+  const [status, setStatus] = useState<Status>("waiting");
+  const { uploadedVideo, setUploadedVideo, onVideoPicked } = useVideoPicker();
   const {
     watch,
     register,
     formState: { errors },
     handleSubmit,
   } = useForm<UploadVideoFormData>({
+    defaultValues: {
+      fileList: uploadedVideo ? [uploadedVideo] : null,
+    },
     resolver: zodResolver(videoUploadFormSchema),
   });
-  const [status, setStatus] = useState<Status>("waiting");
-  const { toast } = useToast();
 
   const videoFile: FileList = watch("fileList");
+
+  useEffect(() => {
+    if (!videoFile) {
+      setUploadedVideo(null);
+    } else {
+      setUploadedVideo(videoFile[0]);
+    }
+  }, [videoFile, setUploadedVideo]);
 
   const onSubmit: SubmitHandler<UploadVideoFormData> = async (data) => {
     const prompt = data.prompt;

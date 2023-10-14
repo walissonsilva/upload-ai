@@ -7,8 +7,8 @@ interface VideoPickerContextProps {
   onChangeTabSelected: (tab: TabOptions) => void;
   pickedVideoId: string;
   onVideoPicked: (id: string) => void;
-  uploadedVideo: string;
-  setUploadedVideo: Dispatch<SetStateAction<string>>;
+  uploadedVideo: File | null;
+  setUploadedVideo: Dispatch<SetStateAction<File | null>>;
 }
 
 export const VideoPickerContext = createContext({} as VideoPickerContextProps);
@@ -17,7 +17,7 @@ export const VideoPickerProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const [pickedVideoId, setPickedVideoId] = useState("");
-  const [uploadedVideo, setUploadedVideo] = useState("");
+  const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
 
   const [tabSelected, setTabSelected] = useState<TabOptions>("new-video");
 

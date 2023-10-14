@@ -4,18 +4,17 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Check } from "lucide-react";
 import clsx from "clsx";
+import { useVideoPicker } from "@/hooks/useVideoPicker";
 
 interface HistoryVideosProps {
-  pickedVideoId: string;
-  onVideoPicked: (id: string) => void;
   uploadedVideos: Video[];
 }
 
 export const HistoryVideos: React.FC<HistoryVideosProps> = ({
   uploadedVideos,
-  pickedVideoId,
-  onVideoPicked,
 }) => {
+  const { pickedVideoId, onVideoPicked } = useVideoPicker();
+
   return (
     <ul className="mt-6 flex flex-col gap-4 w-full">
       {uploadedVideos.map((video) => (

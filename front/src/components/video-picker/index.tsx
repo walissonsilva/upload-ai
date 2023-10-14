@@ -28,14 +28,10 @@ export const VideoPicker: React.FC = () => {
           <TabsTrigger value="load-video">Histórico</TabsTrigger>
         </TabsList>
         <TabsContent value="new-video">
-          <VideoInputForm onVideoPicked={onVideoPicked} />
+          <VideoInputForm />
         </TabsContent>
         <TabsContent value="load-video">
-          <HistoryVideos
-            uploadedVideos={data}
-            pickedVideoId={pickedVideoId}
-            onVideoPicked={onVideoPicked}
-          />
+          <HistoryVideos uploadedVideos={data} />
         </TabsContent>
       </Tabs>
     </div>
